@@ -1,0 +1,35 @@
+version: '2.1'
+services:
+    database:
+        image: "postgres"
+        environment:
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+        volumes:
+            - ./database-data:/var/lib/postgresql/data/
+        hostname: database
+    webserver:
+        image: airflow-test
+        restart: always
+        depends_on:
+            - database
+        environment:
+            - LOAD_EX=n
+        ports:
+            - "8080:8080"
+        command: sh -c "airflow db init && airflow db upgrade  && airflow users create -u admin -p admin -e admin@admin.com -r Admin -f Admin -l Admin && airflow webserver"
+        volumes:
+          - ./dags:/usr/local/airflow/dags
+        healthcheck:
+            interval: 30s
+            timeout: 30s
+            retries: 3
+    scheduler:
+        image: airflow-test
+        restart: always
+        volumes:
+          - ./dags:/usr/local/airflow/dags
+        depends_on:
+            - webserver
+        command: airflow scheduler
