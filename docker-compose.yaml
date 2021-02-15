@@ -18,9 +18,11 @@ services:
             - LOAD_EX=n
         ports:
             - "8080:8080"
+        hostname: "webserver"
         command: sh -c "airflow db init && airflow db upgrade  && airflow users create -u admin -p admin -e admin@admin.com -r Admin -f Admin -l Admin && airflow webserver"
         volumes:
           - ./dags:/usr/local/airflow/dags
+          - ./logs:/usr/local/airflow/logs
         healthcheck:
             interval: 30s
             timeout: 30s
@@ -30,6 +32,10 @@ services:
         restart: always
         volumes:
           - ./dags:/usr/local/airflow/dags
+          - ./logs:/usr/local/airflow/logs
         depends_on:
             - webserver
+        hostname: "scheduler"
+        ports:
+            - "8793:8793"
         command: airflow scheduler
