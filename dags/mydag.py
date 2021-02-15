@@ -17,7 +17,7 @@ default_args = {
     # 'priority_weight': 10,
 }
 
-dag = DAG("DSM_FINAL", 
+dag = DAG("MY_DAG", 
     default_args=default_args, 
     schedule_interval='@hourly', 
     max_active_runs=1, 
